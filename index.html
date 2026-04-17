@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TuPedido</title>
+  <meta
+    name="description"
+    content="TuPedido. Sistema de pedidos por WhatsApp para negocios de comida."
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header id="topbar" class="topbar">
+      <button id="backButton" class="icon-button hidden" aria-label="Volver">
+        ←
+      </button>
+
+      <div class="topbar-brand">
+        <div id="topbarLogo" class="topbar-logo">🍔</div>
+        <div class="topbar-brand-text">
+          <span id="topbarStoreName" class="store-name">TuPedido</span>
+          <span id="topbarStoreSubtitle" class="store-subtitle">Pedidos por WhatsApp</span>
+        </div>
+      </div>
+
+      <div id="topbarRightSpacer" class="topbar-right-spacer"></div>
+    </header>
+
+    <main id="appView" class="main-content"></main>
+  </div>
+
+  <div id="cartBar" class="cart-bar hidden">
+    <button id="cartButton" class="cart-bar-button">
+      <span>Ver mi pedido</span>
+      <strong id="cartTotal">$0</strong>
+    </button>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
