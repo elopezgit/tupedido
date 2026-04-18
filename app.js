@@ -36,6 +36,10 @@ function formatCurrency(value) {
   }).format(Number(value) || 0);
 }
 
+function formatCurrencyCompact(value) {
+  return `$${Number(value || 0).toLocaleString("es-AR")}`;
+}
+
 function normalizePhone(phone) {
   return String(phone || "").replace(/\D/g, "");
 }
@@ -72,7 +76,6 @@ function getCartItemsCount() {
 
 function updateHeader() {
   const client = APP_DATA.client || {};
-  const isHome = state.view === "categories";
 
   els.topbarStoreName.textContent = client.name || APP_DATA.brand.title;
   els.topbarStoreSubtitle.textContent =
@@ -80,11 +83,7 @@ function updateHeader() {
 
   els.topbarLogo.textContent = client.logo || "🍔";
 
-  if (isHome) {
-    els.topbarRightSpacer.classList.remove("hidden");
-  } else {
-    els.topbarRightSpacer.classList.remove("hidden");
-  }
+  els.topbarRightSpacer.classList.remove("hidden");
 }
 
 function updateBackButton() {
@@ -139,6 +138,11 @@ function goToProducts(categoryId) {
 }
 
 function goToProductDetail(productId) {
+  const product = getProductById(productId);
+  if (product?.categoryId) {
+    state.selectedCategoryId = product.categoryId;
+  }
+
   state.view = "detail";
   state.selectedProductId = productId;
   render();
@@ -756,9 +760,9 @@ function renderCheckoutView() {
 
 function getDeliveryLabel(value) {
   const map = {
-    local: "Lo consumo en el local",
-    retiro: "Lo retiro personalmente",
-    envio: "Necesito que me lo envíen"
+    local: "En el local",
+    retiro: "Retiro",
+    envio: "Envío"
   };
 
   return map[value] || value;
@@ -767,53 +771,101 @@ function getDeliveryLabel(value) {
 function getPaymentLabel(value) {
   const map = {
     efectivo: "Efectivo",
-    transferencia: "Transferencia bancaria",
-    debito_credito: "Tarjeta débito/crédito",
+    transferencia: "Transferencia",
+    debito_credito: "Tarjeta",
     mercadopago: "Mercado Pago"
   };
 
   return map[value] || value;
 }
 
+function getOrderOriginPrefix(deliveryType) {
+  const map = {
+    envio: "ENV",
+    retiro: "RET",
+    local: "LOC"
+  };
+
+  return map[deliveryType] || "PED";
+}
+
+function generateOrderNumber() {
+  const now = new Date();
+
+  const dd = String(now.getDate()).padStart(2, "0");
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const yy = String(now.getFullYear()).slice(-2);
+  const hh = String(now.getHours()).padStart(2, "0");
+  const min = String(now.getMinutes()).padStart(2, "0");
+
+  const prefix = getOrderOriginPrefix(state.checkout.deliveryType);
+
+  return `${prefix}-${dd}${mm}${yy}${hh}${min}`;
+}
+
 function buildWhatsAppMessage() {
   const lines = [];
+  const total = getCartTotal();
+  const orderTime = new Date().toLocaleString("es-AR");
+  const orderNumber = generateOrderNumber();
 
-  lines.push("Hola, quiero hacer este pedido:");
+  lines.push("════════════════════════");
+  lines.push("📦 *NUEVO PEDIDO*");
+  lines.push(`🔢 Pedido #${orderNumber}`);
+  lines.push(`📅 ${orderTime}`);
+  lines.push("════════════════════════");
   lines.push("");
 
-  state.cart.forEach((item) => {
-    lines.push(`- ${item.quantity}x ${item.name} (${item.optionLabel}) - ${formatCurrency(item.unitPrice * item.quantity)}`);
-    if (item.observation) {
-      lines.push(`  Obs: ${item.observation}`);
+  lines.push("🍔 *DETALLE DEL PEDIDO*");
+  lines.push("────────────────────────");
+
+  state.cart.forEach((item, index) => {
+    const subtotal = item.unitPrice * item.quantity;
+
+    lines.push(`🔹 *${index + 1}. ${item.name}*`);
+    lines.push(`   └ 📦 ${item.quantity} x ${item.optionLabel}`);
+    lines.push(`   └ 💰 ${formatCurrencyCompact(subtotal)}`);
+
+    if (item.observation && item.observation.trim()) {
+      lines.push(`   └ 📝 ${item.observation.trim()}`);
     }
+
+    lines.push("────────────────────────");
   });
 
+  lines.push(`💰 *TOTAL FINAL: ${formatCurrencyCompact(total)}*`);
   lines.push("");
-  lines.push(`Total: ${formatCurrency(getCartTotal())}`);
-  lines.push("");
-  lines.push(`Nombre: ${state.checkout.name || "-"}`);
-  lines.push(`Teléfono: ${state.checkout.phone || "-"}`);
-  lines.push(`Entrega: ${getDeliveryLabel(state.checkout.deliveryType)}`);
+
+  lines.push("👤 *DATOS DEL CLIENTE*");
+  lines.push("────────────────────────");
+  lines.push(`   👤 Nombre: ${state.checkout.name || "-"}`);
+  lines.push(`   📱 Tel: ${state.checkout.phone || "-"}`);
+  lines.push(`   🚚 Entrega: ${getDeliveryLabel(state.checkout.deliveryType)}`);
 
   if (state.checkout.deliveryType === "envio") {
-    lines.push(`Dirección: ${state.checkout.address || "-"}`);
+    lines.push(`   📍 Dirección: ${state.checkout.address || "-"}`);
   }
 
   if (state.checkout.deliveryType === "retiro" && state.checkout.address.trim()) {
-    lines.push(`Referencia retiro: ${state.checkout.address}`);
+    lines.push(`   📌 Referencia: ${state.checkout.address.trim()}`);
   }
 
-  lines.push(`Pago: ${getPaymentLabel(state.checkout.paymentMethod)}`);
+  lines.push(`   💳 Pago: ${getPaymentLabel(state.checkout.paymentMethod)}`);
 
   if (state.checkout.paymentMethod === "transferencia") {
-    lines.push(`Alias de referencia: ${APP_DATA.payment.alias}`);
+    lines.push(`   💳 Alias: ${APP_DATA.payment.alias}`);
   }
 
-  if (state.checkout.generalNotes.trim()) {
+  if (state.checkout.generalNotes && state.checkout.generalNotes.trim()) {
     lines.push("");
-    lines.push("Observaciones generales:");
-    lines.push(state.checkout.generalNotes.trim());
+    lines.push("📝 *OBSERVACIONES*");
+    lines.push("────────────────────────");
+    lines.push(`   ${state.checkout.generalNotes.trim()}`);
   }
+
+  lines.push("");
+  lines.push("════════════════════════");
+  lines.push("📲 Generado desde *TuPedido*");
 
   return lines.join("\n");
 }
@@ -910,7 +962,11 @@ els.backButton.addEventListener("click", () => {
   }
 
   if (state.view === "detail") {
-    goToProducts(state.selectedCategoryId);
+    if (state.selectedCategoryId) {
+      goToProducts(state.selectedCategoryId);
+      return;
+    }
+    goToCategories();
     return;
   }
 
