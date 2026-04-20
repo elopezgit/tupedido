@@ -81,8 +81,7 @@ function updateHeader() {
   els.topbarStoreSubtitle.textContent =
     client.topbarSubtitle || APP_DATA.brand.subtitle || "Pedidos por WhatsApp";
 
-  els.topbarLogo.textContent = client.logo || "🍔";
-
+  els.topbarLogo.textContent = client.logo || "🍕";
   els.topbarRightSpacer.classList.remove("hidden");
 }
 
@@ -109,7 +108,7 @@ function loadCart() {
   if (savedCart) {
     try {
       state.cart = JSON.parse(savedCart);
-    } catch (error) {
+    } catch {
       state.cart = [];
     }
   }
@@ -117,24 +116,36 @@ function loadCart() {
   if (savedCheckout) {
     try {
       state.checkout = { ...state.checkout, ...JSON.parse(savedCheckout) };
-    } catch (error) {
+    } catch {
       // ignore
     }
   }
+}
+
+function animateViewChange(callback) {
+  els.appView.style.opacity = "0";
+  els.appView.style.transform = "translateY(10px)";
+
+  setTimeout(() => {
+    callback();
+    els.appView.style.transition = "all 0.28s ease";
+    els.appView.style.opacity = "1";
+    els.appView.style.transform = "translateY(0)";
+  }, 120);
 }
 
 function goToCategories() {
   state.view = "categories";
   state.selectedCategoryId = null;
   state.selectedProductId = null;
-  render();
+  animateViewChange(render);
 }
 
 function goToProducts(categoryId) {
   state.view = "products";
   state.selectedCategoryId = categoryId;
   state.selectedProductId = null;
-  render();
+  animateViewChange(render);
 }
 
 function goToProductDetail(productId) {
@@ -145,17 +156,17 @@ function goToProductDetail(productId) {
 
   state.view = "detail";
   state.selectedProductId = productId;
-  render();
+  animateViewChange(render);
 }
 
 function goToCart() {
   state.view = "cart";
-  render();
+  animateViewChange(render);
 }
 
 function goToCheckout() {
   state.view = "checkout";
-  render();
+  animateViewChange(render);
 }
 
 function renderCategoriesView() {
@@ -226,7 +237,6 @@ function renderCategoriesView() {
       <section>
         <div class="section-header">
           <h2 class="section-title">Categorías</h2>
-          <button class="filter-button" type="button">Filtros</button>
         </div>
 
         <div class="category-list">
@@ -281,7 +291,11 @@ function renderProductsView() {
               <span class="product-price-label">Desde</span>
               <span class="product-price">${formatCurrency(minPrice)}</span>
             </div>
-            ${product.badge ? `<div style="margin-top:12px;"><span class="badge badge-success">${product.badge}</span></div>` : ""}
+            ${
+              product.badge
+                ? `<div style="margin-top:12px;"><span class="badge badge-success">${product.badge}</span></div>`
+                : ""
+            }
           </div>
         </article>
       `;
@@ -363,7 +377,7 @@ function renderDetailView() {
           id="observationInput"
           class="textarea"
           maxlength="150"
-          placeholder="Ej: sin ajo, bien cocido, sin cebolla..."
+          placeholder="Ej: sin aceitunas, extra queso, bien cocida..."
         ></textarea>
       </section>
 
@@ -816,7 +830,7 @@ function buildWhatsAppMessage() {
   lines.push("════════════════════════");
   lines.push("");
 
-  lines.push("🍔 *DETALLE DEL PEDIDO*");
+  lines.push("🍽️ *DETALLE DEL PEDIDO*");
   lines.push("────────────────────────");
 
   state.cart.forEach((item, index) => {
@@ -914,7 +928,7 @@ async function copyAliasToClipboard() {
         feedback.classList.add("hidden");
       }, 1800);
     }
-  } catch (error) {
+  } catch {
     alert(`No se pudo copiar automáticamente. Alias: ${alias}`);
   }
 }
@@ -979,6 +993,18 @@ els.backButton.addEventListener("click", () => {
 });
 
 els.cartButton.addEventListener("click", goToCart);
+
+window.addEventListener("load", () => {
+  const splash = document.getElementById("splash");
+
+  setTimeout(() => {
+    splash.classList.add("splash-out");
+
+    setTimeout(() => {
+      splash.remove();
+    }, 900);
+  }, 2500);
+});
 
 loadCart();
 render();

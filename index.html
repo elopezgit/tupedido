@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TuPedido!</title>
   <meta
@@ -20,10 +19,11 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <div id="splash">
-  <img src="img/logo/logo1.png" alt="TuPedido" class="splash-logo">
-</div>
+  <!-- SPLASH -->
+  <div id="splash" aria-hidden="true">
+    <img src="img/logo/pngwing.com.png" alt="TuPedido" class="splash-logo" />
+    <div class="splash-text">¿Qué vas a pedir hoy?</div>
+  </div>
 
   <div class="app-shell">
     <header id="topbar" class="topbar">
@@ -33,6 +33,7 @@
 
       <div class="topbar-brand">
         <div id="topbarLogo" class="topbar-logo"></div>
+
         <div class="topbar-brand-text">
           <span id="topbarStoreName" class="store-name">TuPedido</span>
           <span id="topbarStoreSubtitle" class="store-subtitle">Pedidos por WhatsApp</span>
@@ -54,22 +55,5 @@
 
   <script src="data.js"></script>
   <script src="app.js"></script>
-
-<script>
-  window.addEventListener("load", () => {
-    const splash = document.getElementById("splash");
-
-    // Tiempo visible (ajustable)
-    setTimeout(() => {
-      splash.classList.add("splash-out");
-
-      // eliminar del DOM después de animación
-      setTimeout(() => {
-        splash.remove();
-      }, 1000);
-    }, 2000); // 2 segundos de splash
-  });
-</script>
-
 </body>
 </html>

@@ -158,12 +158,6 @@ img {
   justify-content: center;
 }
 
-.topbar-center {
-  display: flex;
-  justify-content: center;
-  min-width: 0;
-}
-
 .store-name {
   display: block;
   font-size: 1rem;
@@ -444,28 +438,10 @@ img {
   letter-spacing: -0.04em;
 }
 
-.filter-button {
-  border: 0;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #29bfd0, #5aaef6);
-  color: #fff;
-  font-weight: 900;
-  padding: 12px 16px;
-  cursor: pointer;
-  box-shadow: 0 14px 28px rgba(55, 164, 231, 0.2);
-  transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
-}
-
-.filter-button:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.03);
-  box-shadow: 0 18px 34px rgba(55, 164, 231, 0.28);
-}
-
 .category-card {
   position: relative;
   width: 100%;
-  height: 132px;
+  height: 140px;
   border-radius: 26px;
   overflow: hidden;
   box-shadow: var(--shadow-md);
@@ -474,6 +450,7 @@ img {
   padding: 0;
   border: 1px solid rgba(255,255,255,0.42);
   transition: transform var(--transition), box-shadow var(--transition);
+  appearance: none;
 }
 
 .category-card:hover {
@@ -515,7 +492,7 @@ img {
 
 .category-name {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 1.75rem;
   font-weight: 900;
   letter-spacing: -0.03em;
   text-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
@@ -1232,32 +1209,49 @@ img {
   }
 }
 
-/* Splash pantalla completa */
+/* SPLASH */
 #splash {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
+  inset: 0;
   background: white;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 18px;
   z-index: 9999;
   overflow: hidden;
 }
 
-/* Logo */
 .splash-logo {
-  width: 900px;
+  width: min(270px, 72vw);
   opacity: 0;
-  animation: logoIn 1s ease forwards;
+  animation: logoIn 0.95s ease forwards;
+  filter: drop-shadow(0 18px 30px rgba(23, 61, 99, 0.12));
 }
 
-/* Entrada suave */
+.splash-text {
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 900;
+  color: #17324a;
+  letter-spacing: -0.04em;
+  opacity: 0;
+  transform: translateY(18px);
+  animation: textIn 0.8s ease forwards;
+  animation-delay: 0.9s;
+}
+
+.splash-out .splash-logo {
+  animation: logoOut 0.8s ease forwards;
+}
+
+.splash-out .splash-text {
+  animation: textOut 0.7s ease forwards;
+}
+
 @keyframes logoIn {
   0% {
-    transform: scale(0.5) rotate(-10deg);
+    transform: scale(0.65) rotate(-8deg);
     opacity: 0;
   }
   100% {
@@ -1266,18 +1260,25 @@ img {
   }
 }
 
-/* Salida tipo zoom + giro */
-.splash-out {
-  animation: splashOut 1s ease forwards;
+@keyframes textIn {
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes splashOut {
-  0% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
+@keyframes logoOut {
   100% {
+    transform: scale(2.2) rotate(12deg);
     opacity: 0;
-    transform: scale(4) rotate(20deg);
+    filter: blur(8px);
+  }
+}
+
+@keyframes textOut {
+  100% {
+    transform: translateY(-24px);
+    opacity: 0;
+    filter: blur(4px);
   }
 }
