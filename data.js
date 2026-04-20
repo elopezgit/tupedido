@@ -5,7 +5,7 @@ const APP_DATA = {
   },
 
   client: {
-    name: "Pizzería Don Nico",
+    name: "Pizzas & Empanadas - EL TURCO",
     subtitle: "Pizzas y empanadas caseras",
     logo: "🍕",
     topbarSubtitle: "Pedidos por WhatsApp",
