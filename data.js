@@ -41,7 +41,7 @@ const APP_DATA = {
       id: "pizzas",
       name: "Pizzas",
       image:
-        "https://images.unsplash.com/photo-1548365328-9f547fb0953b?auto=format&fit=crop&w=1200&q=80",
+        "https://resizer.glanacion.com/resizer/v2/-OOYKN3HEDJFQXF3SOECAICFQWQ.jpg?auth=0f40a359db815154c30b0a689942817b35c4526464fff89970d39e1a625914d9&width=420&height=280&quality=70&smart=true",
       badge: "PROMOS"
     },
     {
@@ -60,7 +60,7 @@ const APP_DATA = {
       type: "standard",
       name: "Pizza Muzzarella",
       image:
-        "https://images.unsplash.com/photo-1548365328-9f547fb0953b?auto=format&fit=crop&w=1200&q=80",
+        "https://resizer.glanacion.com/resizer/v2/-OOYKN3HEDJFQXF3SOECAICFQWQ.jpg?auth=0f40a359db815154c30b0a689942817b35c4526464fff89970d39e1a625914d9&width=420&height=280&quality=70&smart=true",
       description: "La clásica pizza de muzzarella, salsa y aceitunas.",
       badge: "TOP",
       tag: "🔥 Más vendida",

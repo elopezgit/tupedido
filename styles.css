@@ -1062,6 +1062,22 @@ img {
   justify-content: center;
   z-index: 9999;
   overflow: hidden;
+
+  /* animación suave */
+  animation: splashMove 5s ease-in-out forwards;
+}
+
+/* movimiento leve tipo "respira" */
+@keyframes splashMove {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .splash-step {
