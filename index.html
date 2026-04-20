@@ -20,9 +20,14 @@
 </head>
 <body>
   <!-- SPLASH -->
-  <div id="splash" aria-hidden="true">
-    <img src="img/logo/pngwing.com.png" alt="TuPedido" class="splash-logo" />
-    <div class="splash-text">¿Qué vas a pedir hoy?</div>
+  <div id="splash" class="splash-screen" aria-hidden="true">
+    <div class="splash-step splash-step-logo active" id="splashLogoStep">
+      <img src="img/logo/logo1.png" alt="TuPedido" class="splash-logo" />
+    </div>
+
+    <div class="splash-step splash-step-text" id="splashTextStep">
+      <h1 class="splash-question">¿Qué vas a pedir hoy?</h1>
+    </div>
   </div>
 
   <div class="app-shell">
@@ -51,6 +56,38 @@
       <span>Ver mi pedido</span>
       <strong id="cartTotal">$0</strong>
     </button>
+  </div>
+
+  <!-- MODAL RESUMEN FINAL -->
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-backdrop" data-close-modal></div>
+
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Antes de enviar</h3>
+        <button class="modal-close" id="closeModalButton" type="button">×</button>
+      </div>
+
+      <p class="modal-text">
+        Revisá tu pedido. Cuando confirmes, se abrirá WhatsApp con todo listo para enviar.
+      </p>
+
+      <div class="modal-preview" id="modalPreview"></div>
+
+      <label class="check-row">
+        <input type="checkbox" id="confirmCheck" />
+        <span>Gracias por tu pedido. Confirmo que quiero enviarlo por WhatsApp.</span>
+      </label>
+
+      <div class="modal-actions">
+        <button class="secondary-button" id="cancelModalButton" type="button">
+          Cancelar
+        </button>
+        <button class="whatsapp-button" id="confirmSendButton" type="button" disabled>
+          Enviar por WhatsApp
+        </button>
+      </div>
+    </div>
   </div>
 
   <script src="data.js"></script>

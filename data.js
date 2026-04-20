@@ -5,8 +5,8 @@ const APP_DATA = {
   },
 
   client: {
-    name: "Pizzería & Empanadas El Turco",
-    subtitle: "Pizzas y empanadas recién hechas",
+    name: "Pizzería Don Nico",
+    subtitle: "Pizzas y empanadas caseras",
     logo: "🍕",
     topbarSubtitle: "Pedidos por WhatsApp",
     coverImage:
@@ -25,16 +25,15 @@ const APP_DATA = {
   },
 
   hero: {
-    title: "Pedí rápido y sin vueltas",
-    text: "Elegí tu pizza o tus empanadas, sumalas al carrito y mandá tu pedido directo por WhatsApp.",
-    badge: "⚡ Rápido y simple"
+    title: "Pedí fácil y sin vueltas",
+    text: "Elegí tu pizza o tus empanadas, revisá tu pedido y mandalo directo por WhatsApp.",
+    badge: "⚡ Rápido y claro"
   },
 
   featuredProductsIds: [
     "pizza-muzzarella",
     "pizza-napolitana",
-    "empanadas-carne",
-    "empanadas-jamonyqueso"
+    "emp-docena"
   ],
 
   categories: [
@@ -42,15 +41,15 @@ const APP_DATA = {
       id: "pizzas",
       name: "Pizzas",
       image:
-        "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1548365328-9f547fb0953b?auto=format&fit=crop&w=1200&q=80",
       badge: "PROMOS"
     },
     {
       id: "empanadas",
       name: "Empanadas",
       image:
-        "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=1200&q=80",
-      badge: "DOCENAS"
+        "https://images.unsplash.com/photo-1608039755401-742074f0548d?auto=format&fit=crop&w=1200&q=80",
+      badge: "DOCENA"
     }
   ],
 
@@ -58,118 +57,87 @@ const APP_DATA = {
     {
       id: "pizza-muzzarella",
       categoryId: "pizzas",
-      name: "Muzzarella",
+      type: "standard",
+      name: "Pizza Muzzarella",
       image:
         "https://images.unsplash.com/photo-1548365328-9f547fb0953b?auto=format&fit=crop&w=1200&q=80",
-      description: "La clásica pizza de muzzarella con salsa y aceitunas.",
+      description: "La clásica pizza de muzzarella, salsa y aceitunas.",
       badge: "TOP",
-      tag: "🔥 Más pedida",
+      tag: "🔥 Más vendida",
       options: [
-        { id: "muzzarella-4", label: "4 porciones", price: 7800 },
-        { id: "muzzarella-8", label: "8 porciones", price: 9800 }
+        { id: "muzza-4", label: "4 porciones (individual)", price: 7800 },
+        { id: "muzza-8", label: "8 porciones (grande)", price: 9800 }
       ]
     },
     {
       id: "pizza-napolitana",
       categoryId: "pizzas",
-      name: "Napolitana",
+      type: "standard",
+      name: "Pizza Napolitana",
       image:
         "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=1200&q=80",
       description: "Muzzarella, tomate fresco, ajo y aceitunas.",
       badge: "PROMO",
       tag: "🍅 Imperdible",
       options: [
-        { id: "napolitana-4", label: "4 porciones", price: 8300 },
-        { id: "napolitana-8", label: "8 porciones", price: 10800, oldPrice: 11800 }
+        { id: "napo-4", label: "4 porciones (individual)", price: 8300 },
+        { id: "napo-8", label: "8 porciones (grande)", price: 10800 }
       ]
     },
     {
       id: "pizza-fugazzeta",
       categoryId: "pizzas",
-      name: "Fugazzeta",
+      type: "standard",
+      name: "Pizza Fugazzeta",
       image:
         "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=1200&q=80",
-      description: "Muzzarella, cebolla salteada y aceitunas.",
+      description: "Cebolla, muzzarella y aceitunas.",
       badge: "",
       tag: "🧀 Clásica",
       options: [
-        { id: "fugazzeta-4", label: "4 porciones", price: 8600 },
-        { id: "fugazzeta-8", label: "8 porciones", price: 10900 }
+        { id: "fuga-4", label: "4 porciones (individual)", price: 8600 },
+        { id: "fuga-8", label: "8 porciones (grande)", price: 10900 }
       ]
     },
     {
       id: "pizza-especial",
       categoryId: "pizzas",
-      name: "Especial",
+      type: "standard",
+      name: "Pizza Especial",
       image:
         "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=1200&q=80",
       description: "Jamón, muzzarella, morrones y aceitunas.",
       badge: "COMPLETA",
       tag: "💥 Bien cargada",
       options: [
-        { id: "especial-4", label: "4 porciones", price: 9100 },
-        { id: "especial-8", label: "8 porciones", price: 11800 }
+        { id: "esp-4", label: "4 porciones (individual)", price: 9100 },
+        { id: "esp-8", label: "8 porciones (grande)", price: 11800 }
       ]
     },
 
     {
-      id: "empanadas-carne",
+      id: "emp-docena",
       categoryId: "empanadas",
-      name: "Carne",
+      type: "empanadas",
+      name: "Empanadas",
       image:
         "https://images.unsplash.com/photo-1608039755401-742074f0548d?auto=format&fit=crop&w=1200&q=80",
-      description: "Empanadas de carne bien jugosas y condimentadas.",
-      badge: "DOCENA",
-      tag: "🥟 Promo",
+      description: "Elegí libre o armá tu docena con los gustos que prefieras.",
+      badge: "ARMABLE",
+      tag: "🥟 Libre o docena",
+      empanadaFlavors: [
+        { id: "carne", name: "Carne" },
+        { id: "pollo", name: "Pollo" },
+        { id: "mondongo", name: "Mondongo" },
+        { id: "ternera_y_queso", name: "Ternera y queso" },
+        { id: "cuatro_quesos", name: "4 quesos" },
+        { id: "jamon_y_queso", name: "Jamón y queso" },
+        { id: "caprese", name: "Caprese" },
+        { id: "roquefort", name: "Roquefort" }
+      ],
       options: [
-        { id: "carne-3", label: "3 unidades", price: 2600 },
-        { id: "carne-6", label: "6 unidades", price: 4900 },
-        { id: "carne-12", label: "12 unidades", price: 9200, oldPrice: 10200 }
-      ]
-    },
-    {
-      id: "empanadas-jamonyqueso",
-      categoryId: "empanadas",
-      name: "Jamón y queso",
-      image:
-        "https://images.unsplash.com/photo-1628191012827-dacc18f15f41?auto=format&fit=crop&w=1200&q=80",
-      description: "Empanadas suaves de jamón cocido y queso cremoso.",
-      badge: "",
-      tag: "🧀 Suaves",
-      options: [
-        { id: "jyq-3", label: "3 unidades", price: 2700 },
-        { id: "jyq-6", label: "6 unidades", price: 5100 },
-        { id: "jyq-12", label: "12 unidades", price: 9500 }
-      ]
-    },
-    {
-      id: "empanadas-pollo",
-      categoryId: "empanadas",
-      name: "Pollo",
-      image:
-        "https://images.unsplash.com/photo-1633945274405-b6c8069047b5?auto=format&fit=crop&w=1200&q=80",
-      description: "Empanadas de pollo desmenuzado con cebolla y especias.",
-      badge: "NUEVO",
-      tag: "🍗 Sabrosas",
-      options: [
-        { id: "pollo-3", label: "3 unidades", price: 2650 },
-        { id: "pollo-6", label: "6 unidades", price: 5000 },
-        { id: "pollo-12", label: "12 unidades", price: 9300 }
-      ]
-    },
-    {
-      id: "empanadas-caprese",
-      categoryId: "empanadas",
-      name: "Caprese",
-      image:
-        "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
-      description: "Queso, tomate y albahaca.",
-      badge: "",
-      tag: "🌿 Livianas",
-      options: [
-        { id: "caprese-3", label: "3 unidades", price: 2750 },
-        { id: "caprese-6", label: "6 unidades", price: 5200 },
-        { id: "caprese-12", label: "12 unidades", price: 9700 }
+        { id: "emp-libre", label: "Libres por unidad", price: 900 },
+        { id: "emp-docena", label: "Docena", price: 9200 }
       ]
     }
   ]

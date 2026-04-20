@@ -8,9 +8,11 @@ const state = {
   checkout: {
     name: "",
     phone: "",
-    deliveryType: "envio", // local | retiro | envio
+    deliveryType: "envio", // local | envio
     address: "",
-    paymentMethod: "efectivo", // efectivo | transferencia | debito_credito | mercadopago
+    paymentMethod: "efectivo", // efectivo | transferencia
+    cashMode: "justo", // justo | con_cuanto
+    cashAmount: "",
     generalNotes: ""
   }
 };
@@ -21,18 +23,28 @@ const els = {
   cartBar: document.getElementById("cartBar"),
   cartButton: document.getElementById("cartButton"),
   cartTotal: document.getElementById("cartTotal"),
-  topbar: document.getElementById("topbar"),
   topbarStoreName: document.getElementById("topbarStoreName"),
   topbarStoreSubtitle: document.getElementById("topbarStoreSubtitle"),
   topbarLogo: document.getElementById("topbarLogo"),
-  topbarRightSpacer: document.getElementById("topbarRightSpacer")
+  topbarRightSpacer: document.getElementById("topbarRightSpacer"),
+
+  splash: document.getElementById("splash"),
+  splashLogoStep: document.getElementById("splashLogoStep"),
+  splashTextStep: document.getElementById("splashTextStep"),
+
+  confirmModal: document.getElementById("confirmModal"),
+  modalPreview: document.getElementById("modalPreview"),
+  closeModalButton: document.getElementById("closeModalButton"),
+  cancelModalButton: document.getElementById("cancelModalButton"),
+  confirmCheck: document.getElementById("confirmCheck"),
+  confirmSendButton: document.getElementById("confirmSendButton")
 };
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
-    maximumFractionDigits: 2
+    maximumFractionDigits: 0
   }).format(Number(value) || 0);
 }
 
@@ -97,13 +109,13 @@ function updateCartBar() {
 }
 
 function saveCart() {
-  localStorage.setItem("tupedido_cart", JSON.stringify(state.cart));
-  localStorage.setItem("tupedido_checkout", JSON.stringify(state.checkout));
+  localStorage.setItem("tupedido_cart_v2", JSON.stringify(state.cart));
+  localStorage.setItem("tupedido_checkout_v2", JSON.stringify(state.checkout));
 }
 
 function loadCart() {
-  const savedCart = localStorage.getItem("tupedido_cart");
-  const savedCheckout = localStorage.getItem("tupedido_checkout");
+  const savedCart = localStorage.getItem("tupedido_cart_v2");
+  const savedCheckout = localStorage.getItem("tupedido_checkout_v2");
 
   if (savedCart) {
     try {
@@ -227,7 +239,7 @@ function renderCategoriesView() {
 
       <section>
         <div class="section-header">
-          <h2 class="section-title">Lo más pedido</h2>
+          <h2 class="section-title">Lo más vendido</h2>
         </div>
         <div class="featured-list">
           ${featuredHtml}
@@ -238,7 +250,6 @@ function renderCategoriesView() {
         <div class="section-header">
           <h2 class="section-title">Categorías</h2>
         </div>
-
         <div class="category-list">
           ${categoriesHtml}
         </div>
@@ -306,7 +317,6 @@ function renderProductsView() {
     <section style="padding-top:16px;">
       <div class="section-header">
         <h2 class="section-title">${category ? category.name : "Productos"}</h2>
-        <button class="share-button" type="button" aria-label="Compartir">⤴</button>
       </div>
 
       <div class="product-list">
@@ -322,11 +332,219 @@ function renderProductsView() {
   });
 }
 
+function renderEmpanadasConfigurator(product) {
+  const flavorsHtml = product.empanadaFlavors
+    .map((flavor) => `
+      <div class="emp-row" data-flavor-id="${flavor.id}">
+        <div class="emp-flavor-name">${flavor.name}</div>
+
+        <div class="qty-controls">
+          <button class="qty-button" type="button" data-flavor-minus="${flavor.id}">−</button>
+          <span class="qty-value" data-flavor-qty="${flavor.id}">0</span>
+          <button class="qty-button" type="button" data-flavor-plus="${flavor.id}">+</button>
+        </div>
+      </div>
+    `)
+    .join("");
+
+  els.appView.innerHTML = `
+    <section class="detail-view">
+      <div class="detail-head">
+        <h2 class="detail-title">${product.name}</h2>
+      </div>
+
+      <div class="detail-image-wrap">
+        <img class="detail-image" src="${product.image}" alt="${product.name}">
+      </div>
+
+      <p class="detail-description">${product.description}</p>
+
+      <section class="options-block">
+        <h3 class="options-title">Elegí el modo</h3>
+
+        <div class="segmented">
+          <button type="button" class="segment-button active" id="empLibreBtn">Libre</button>
+          <button type="button" class="segment-button" id="empDocenaBtn">Docena</button>
+        </div>
+
+        <p class="options-subtitle" id="empModeText">
+          Podés elegir las empanadas que quieras por unidad.
+        </p>
+      </section>
+
+      <section class="checkout-card">
+        <div class="summary-row">
+          <span>Modo seleccionado</span>
+          <strong id="empModeLabel">Libre</strong>
+        </div>
+        <div class="summary-row">
+          <span>Cantidad</span>
+          <strong id="empTotalCount">0</strong>
+        </div>
+        <div class="summary-row summary-total">
+          <span>Total</span>
+          <strong id="empTotalPrice">${formatCurrency(0)}</strong>
+        </div>
+      </section>
+
+      <section class="checkout-card">
+        <div class="emp-list">
+          ${flavorsHtml}
+        </div>
+      </section>
+
+      <section class="textarea-block">
+        <h3 class="textarea-label">Observaciones</h3>
+        <textarea
+          id="observationInput"
+          class="textarea"
+          maxlength="150"
+          placeholder="Ej: sin aceitunas, separar por gustos, etc."
+        ></textarea>
+      </section>
+
+      <div class="add-bar">
+        <button id="addEmpanadasButton" class="add-button" type="button">
+          <span>Sumar al pedido</span>
+          <strong id="empAddButtonPrice">${formatCurrency(0)}</strong>
+        </button>
+      </div>
+    </section>
+  `;
+
+  let mode = "libre";
+  let quantities = {};
+
+  product.empanadaFlavors.forEach((flavor) => {
+    quantities[flavor.id] = 0;
+  });
+
+  const empLibreBtn = document.getElementById("empLibreBtn");
+  const empDocenaBtn = document.getElementById("empDocenaBtn");
+  const empModeText = document.getElementById("empModeText");
+  const empModeLabel = document.getElementById("empModeLabel");
+  const empTotalCount = document.getElementById("empTotalCount");
+  const empTotalPrice = document.getElementById("empTotalPrice");
+  const empAddButtonPrice = document.getElementById("empAddButtonPrice");
+  const observationInput = document.getElementById("observationInput");
+
+  const libreOption = product.options.find((o) => o.id === "emp-libre");
+  const docenaOption = product.options.find((o) => o.id === "emp-docena");
+
+  function getTotalCount() {
+    return Object.values(quantities).reduce((acc, qty) => acc + qty, 0);
+  }
+
+  function getTotalPrice() {
+    const totalCount = getTotalCount();
+    if (mode === "libre") {
+      return totalCount * libreOption.price;
+    }
+    return totalCount === 12 ? docenaOption.price : 0;
+  }
+
+  function refreshEmpanadasUI() {
+    product.empanadaFlavors.forEach((flavor) => {
+      const qtyEl = document.querySelector(`[data-flavor-qty="${flavor.id}"]`);
+      if (qtyEl) qtyEl.textContent = quantities[flavor.id];
+    });
+
+    const totalCount = getTotalCount();
+    const totalPrice = getTotalPrice();
+
+    empModeLabel.textContent = mode === "libre" ? "Libre" : "Docena";
+    empTotalCount.textContent = totalCount;
+    empTotalPrice.textContent = formatCurrency(totalPrice);
+    empAddButtonPrice.textContent = formatCurrency(totalPrice);
+
+    if (mode === "libre") {
+      empModeText.textContent = "Podés elegir las empanadas que quieras por unidad.";
+    } else {
+      empModeText.textContent = "Para docena, tenés que completar exactamente 12 empanadas.";
+    }
+  }
+
+  function setMode(nextMode) {
+    mode = nextMode;
+
+    empLibreBtn.classList.toggle("active", mode === "libre");
+    empDocenaBtn.classList.toggle("active", mode === "docena");
+
+    refreshEmpanadasUI();
+  }
+
+  empLibreBtn.addEventListener("click", () => setMode("libre"));
+  empDocenaBtn.addEventListener("click", () => setMode("docena"));
+
+  document.querySelectorAll("[data-flavor-plus]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const flavorId = button.dataset.flavorPlus;
+
+      if (mode === "docena" && getTotalCount() >= 12) return;
+
+      quantities[flavorId] += 1;
+      refreshEmpanadasUI();
+    });
+  });
+
+  document.querySelectorAll("[data-flavor-minus]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const flavorId = button.dataset.flavorMinus;
+
+      if (quantities[flavorId] <= 0) return;
+
+      quantities[flavorId] -= 1;
+      refreshEmpanadasUI();
+    });
+  });
+
+  document.getElementById("addEmpanadasButton").addEventListener("click", () => {
+    const totalCount = getTotalCount();
+    const totalPrice = getTotalPrice();
+
+    if (totalCount <= 0) {
+      alert("Elegí al menos una empanada.");
+      return;
+    }
+
+    if (mode === "docena" && totalCount !== 12) {
+      alert("Si elegís docena, tenés que completar exactamente 12 empanadas.");
+      return;
+    }
+
+    const selectedFlavors = product.empanadaFlavors
+      .filter((flavor) => quantities[flavor.id] > 0)
+      .map((flavor) => `${flavor.name} x${quantities[flavor.id]}`);
+
+    state.cart.push({
+      id: `${product.id}-${Date.now()}`,
+      productId: product.id,
+      name: mode === "docena" ? "Empanadas - Docena" : "Empanadas - Libres",
+      image: product.image,
+      optionLabel: selectedFlavors.join(", "),
+      observation: observationInput.value.trim(),
+      unitPrice: totalPrice,
+      quantity: 1,
+      customType: "empanadas_combo"
+    });
+
+    saveCart();
+    goToCart();
+  });
+
+  refreshEmpanadasUI();
+}
+
 function renderDetailView() {
   const product = getProductById(state.selectedProductId);
 
   if (!product) {
     els.appView.innerHTML = `<div class="empty-state">Producto no encontrado.</div>`;
+    return;
+  }
+
+  if (product.type === "empanadas") {
+    renderEmpanadasConfigurator(product);
     return;
   }
 
@@ -356,7 +574,6 @@ function renderDetailView() {
     <section class="detail-view">
       <div class="detail-head">
         <h2 class="detail-title">${product.name}</h2>
-        <button class="share-button" type="button" aria-label="Compartir">⤴</button>
       </div>
 
       <div class="detail-image-wrap">
@@ -489,7 +706,7 @@ function renderCartView() {
       </div>
 
       <button id="goCheckoutButton" class="primary-button" type="button">
-        Confirmar pedido
+        Pagar / Confirmar
       </button>
     </section>
   `;
@@ -544,9 +761,9 @@ function renderCheckoutView() {
   }
 
   const isEnvio = state.checkout.deliveryType === "envio";
-  const isRetiro = state.checkout.deliveryType === "retiro";
   const isLocal = state.checkout.deliveryType === "local";
   const isTransferencia = state.checkout.paymentMethod === "transferencia";
+  const isEfectivo = state.checkout.paymentMethod === "efectivo";
 
   let locationBlock = "";
 
@@ -563,22 +780,6 @@ function renderCheckoutView() {
             value="${state.checkout.address}"
           >
           <p class="helper-text">Ingresá la dirección donde querés recibir el pedido.</p>
-        </div>
-      </div>
-    `;
-  } else if (isRetiro) {
-    locationBlock = `
-      <div class="checkout-card">
-        <div class="field-block">
-          <label class="field-label" for="customerAddress">Referencia opcional</label>
-          <input
-            id="customerAddress"
-            class="input"
-            type="text"
-            placeholder="Ej: paso en 20 minutos"
-            value="${state.checkout.address}"
-          >
-          <p class="helper-text">Podés dejar una referencia para organizar mejor el retiro.</p>
         </div>
       </div>
     `;
@@ -602,9 +803,52 @@ function renderCheckoutView() {
     `;
   }
 
+  let efectivoBlock = "";
+
+  if (isEfectivo) {
+    efectivoBlock = `
+      <div class="checkout-card">
+        <div class="field-block">
+          <label class="field-label">Pago en efectivo</label>
+
+          <div class="segmented">
+            <button type="button" class="segment-button ${state.checkout.cashMode === "justo" ? "active" : ""}" data-cash-mode="justo">
+              Pago justo
+            </button>
+            <button type="button" class="segment-button ${state.checkout.cashMode === "con_cuanto" ? "active" : ""}" data-cash-mode="con_cuanto">
+              ¿Con cuánto?
+            </button>
+          </div>
+
+          ${
+            state.checkout.cashMode === "con_cuanto"
+              ? `
+              <input
+                id="cashAmount"
+                class="input"
+                type="number"
+                min="${getCartTotal()}"
+                placeholder="Ej: 15000"
+                value="${state.checkout.cashAmount}"
+              >
+              <p class="helper-text">
+                ${
+                  Number(state.checkout.cashAmount) >= getCartTotal()
+                    ? `Vuelto estimado: ${formatCurrency(Number(state.checkout.cashAmount) - getCartTotal())}`
+                    : "Ingresá un monto mayor o igual al total."
+                }
+              </p>
+            `
+              : `<p class="helper-text">Indicaremos que pagás con el monto justo.</p>`
+          }
+        </div>
+      </div>
+    `;
+  }
+
   els.appView.innerHTML = `
     <section class="cart-view">
-      <h2 class="cart-title">¡Lo último!</h2>
+      <h2 class="cart-title">Último paso</h2>
 
       <div class="checkout-grid">
         <div class="checkout-card">
@@ -636,15 +880,12 @@ function renderCheckoutView() {
         <div class="checkout-card">
           <div class="field-block">
             <label class="field-label">Forma de entrega</label>
-            <div class="segmented three">
+            <div class="segmented">
               <button type="button" class="segment-button ${isLocal ? "active" : ""}" data-delivery="local">
-                En el local
-              </button>
-              <button type="button" class="segment-button ${isRetiro ? "active" : ""}" data-delivery="retiro">
-                Retiro
+                Retiro en local
               </button>
               <button type="button" class="segment-button ${isEnvio ? "active" : ""}" data-delivery="envio">
-                Envío
+                Envío a domicilio
               </button>
             </div>
           </div>
@@ -662,20 +903,12 @@ function renderCheckoutView() {
               <button type="button" class="segment-button ${state.checkout.paymentMethod === "transferencia" ? "active" : ""}" data-payment="transferencia">
                 Transferencia
               </button>
-              <button type="button" class="segment-button ${state.checkout.paymentMethod === "debito_credito" ? "active" : ""}" data-payment="debito_credito">
-                Tarjeta
-              </button>
-              <button type="button" class="segment-button ${state.checkout.paymentMethod === "mercadopago" ? "active" : ""}" data-payment="mercadopago">
-                Mercado Pago
-              </button>
             </div>
-            <p class="helper-text">
-              ${isTransferencia
-                ? "Si elegís transferencia, podés copiar el alias de abajo."
-                : "Elegí la forma de pago que te quede más cómoda."}
-            </p>
           </div>
         </div>
+
+        ${efectivoBlock}
+        ${aliasBlock}
 
         <div class="checkout-card">
           <div class="field-block">
@@ -684,7 +917,7 @@ function renderCheckoutView() {
               id="generalNotes"
               class="textarea"
               maxlength="200"
-              placeholder="Ej: tocar timbre, llamar al llegar, sin apuro..."
+              placeholder="Ej: tocar timbre, llamar al llegar..."
             >${state.checkout.generalNotes}</textarea>
           </div>
         </div>
@@ -709,11 +942,9 @@ function renderCheckoutView() {
           </div>
         </div>
 
-        ${aliasBlock}
-
         <div class="checkout-actions">
-          <button id="sendWhatsappButton" class="whatsapp-button" type="button">
-            Pedir por WhatsApp
+          <button id="previewOrderButton" class="whatsapp-button" type="button">
+            Ver resumen y enviar
           </button>
         </div>
       </div>
@@ -723,11 +954,9 @@ function renderCheckoutView() {
   document.querySelectorAll("[data-delivery]").forEach((button) => {
     button.addEventListener("click", () => {
       state.checkout.deliveryType = button.dataset.delivery;
-
       if (state.checkout.deliveryType === "local") {
         state.checkout.address = "";
       }
-
       saveCart();
       render();
     });
@@ -736,6 +965,17 @@ function renderCheckoutView() {
   document.querySelectorAll("[data-payment]").forEach((button) => {
     button.addEventListener("click", () => {
       state.checkout.paymentMethod = button.dataset.payment;
+      saveCart();
+      render();
+    });
+  });
+
+  document.querySelectorAll("[data-cash-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.checkout.cashMode = button.dataset.cashMode;
+      if (state.checkout.cashMode === "justo") {
+        state.checkout.cashAmount = "";
+      }
       saveCart();
       render();
     });
@@ -759,12 +999,21 @@ function renderCheckoutView() {
     });
   }
 
+  const cashAmountInput = document.getElementById("cashAmount");
+  if (cashAmountInput) {
+    cashAmountInput.addEventListener("input", (e) => {
+      state.checkout.cashAmount = e.target.value;
+      saveCart();
+      render();
+    });
+  }
+
   document.getElementById("generalNotes").addEventListener("input", (e) => {
     state.checkout.generalNotes = e.target.value;
     saveCart();
   });
 
-  document.getElementById("sendWhatsappButton").addEventListener("click", sendOrderToWhatsApp);
+  document.getElementById("previewOrderButton").addEventListener("click", openConfirmModal);
 
   const copyAliasButton = document.getElementById("copyAliasButton");
   if (copyAliasButton) {
@@ -774,38 +1023,30 @@ function renderCheckoutView() {
 
 function getDeliveryLabel(value) {
   const map = {
-    local: "En el local",
-    retiro: "Retiro",
-    envio: "Envío"
+    local: "Retiro en local",
+    envio: "Envío a domicilio"
   };
-
   return map[value] || value;
 }
 
 function getPaymentLabel(value) {
   const map = {
     efectivo: "Efectivo",
-    transferencia: "Transferencia",
-    debito_credito: "Tarjeta",
-    mercadopago: "Mercado Pago"
+    transferencia: "Transferencia"
   };
-
   return map[value] || value;
 }
 
 function getOrderOriginPrefix(deliveryType) {
   const map = {
     envio: "ENV",
-    retiro: "RET",
     local: "LOC"
   };
-
   return map[deliveryType] || "PED";
 }
 
 function generateOrderNumber() {
   const now = new Date();
-
   const dd = String(now.getDate()).padStart(2, "0");
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const yy = String(now.getFullYear()).slice(-2);
@@ -813,7 +1054,6 @@ function generateOrderNumber() {
   const min = String(now.getMinutes()).padStart(2, "0");
 
   const prefix = getOrderOriginPrefix(state.checkout.deliveryType);
-
   return `${prefix}-${dd}${mm}${yy}${hh}${min}`;
 }
 
@@ -860,14 +1100,19 @@ function buildWhatsAppMessage() {
     lines.push(`   📍 Dirección: ${state.checkout.address || "-"}`);
   }
 
-  if (state.checkout.deliveryType === "retiro" && state.checkout.address.trim()) {
-    lines.push(`   📌 Referencia: ${state.checkout.address.trim()}`);
-  }
-
   lines.push(`   💳 Pago: ${getPaymentLabel(state.checkout.paymentMethod)}`);
 
   if (state.checkout.paymentMethod === "transferencia") {
     lines.push(`   💳 Alias: ${APP_DATA.payment.alias}`);
+  }
+
+  if (state.checkout.paymentMethod === "efectivo") {
+    if (state.checkout.cashMode === "justo") {
+      lines.push("   💵 Efectivo: paga con justo");
+    } else {
+      lines.push(`   💵 Efectivo: paga con ${formatCurrencyCompact(state.checkout.cashAmount || 0)}`);
+      lines.push(`   🔁 Vuelto: ${formatCurrencyCompact((Number(state.checkout.cashAmount) || 0) - total)}`);
+    }
   }
 
   if (state.checkout.generalNotes && state.checkout.generalNotes.trim()) {
@@ -905,12 +1150,36 @@ function validateCheckout() {
     return false;
   }
 
+  if (state.checkout.paymentMethod === "efectivo" && state.checkout.cashMode === "con_cuanto") {
+    const cashAmount = Number(state.checkout.cashAmount || 0);
+    if (!cashAmount || cashAmount < getCartTotal()) {
+      alert("Ingresá con cuánto pagás en efectivo. Debe ser mayor o igual al total.");
+      return false;
+    }
+  }
+
   return true;
 }
 
-function sendOrderToWhatsApp() {
+function openConfirmModal() {
   if (!validateCheckout()) return;
 
+  els.modalPreview.innerHTML = `
+    <pre>${buildWhatsAppMessage()}</pre>
+  `;
+
+  els.confirmCheck.checked = false;
+  els.confirmSendButton.disabled = true;
+  els.confirmModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+function closeConfirmModal() {
+  els.confirmModal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+}
+
+function sendOrderToWhatsApp() {
   const message = buildWhatsAppMessage();
   const url = `https://wa.me/${APP_DATA.whatsappPhone}?text=${encodeURIComponent(message)}`;
   window.open(url, "_blank");
@@ -924,9 +1193,7 @@ async function copyAliasToClipboard() {
     await navigator.clipboard.writeText(alias);
     if (feedback) {
       feedback.classList.remove("hidden");
-      setTimeout(() => {
-        feedback.classList.add("hidden");
-      }, 1800);
+      setTimeout(() => feedback.classList.add("hidden"), 1800);
     }
   } catch {
     alert(`No se pudo copiar automáticamente. Alias: ${alias}`);
@@ -994,16 +1261,34 @@ els.backButton.addEventListener("click", () => {
 
 els.cartButton.addEventListener("click", goToCart);
 
+els.closeModalButton.addEventListener("click", closeConfirmModal);
+els.cancelModalButton.addEventListener("click", closeConfirmModal);
+els.confirmCheck.addEventListener("change", () => {
+  els.confirmSendButton.disabled = !els.confirmCheck.checked;
+});
+
+document.querySelectorAll("[data-close-modal]").forEach((el) => {
+  el.addEventListener("click", closeConfirmModal);
+});
+
+els.confirmSendButton.addEventListener("click", () => {
+  closeConfirmModal();
+  sendOrderToWhatsApp();
+});
+
 window.addEventListener("load", () => {
-  const splash = document.getElementById("splash");
+  const splash = els.splash;
+
+  setTimeout(() => {
+    els.splashLogoStep.classList.remove("active");
+    els.splashLogoStep.classList.add("hide");
+    els.splashTextStep.classList.add("active");
+  }, 1100);
 
   setTimeout(() => {
     splash.classList.add("splash-out");
-
-    setTimeout(() => {
-      splash.remove();
-    }, 900);
-  }, 2500);
+    setTimeout(() => splash.remove(), 900);
+  }, 2600);
 });
 
 loadCart();
