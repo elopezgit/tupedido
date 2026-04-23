@@ -1,144 +1,182 @@
-const APP_DATA = {
-  brand: {
-    title: "TuPedido",
-    subtitle: "Motor de pedidos por WhatsApp"
+// ─── CONFIGURACIÓN ───────────────────────────────────────────────
+const WA_NUMBER = '+5493813159106';
+// ─── CONFIGURACIÓN ───────────────────────────────────────────────
+
+// Imágenes: Unsplash (libres de derechos, alta resolución)
+// Parámetros: w=600&h=400&q=85&fit=crop&auto=format
+
+const MENU = [
+
+  // ── PIZZAS ─────────────────────────────────────────────────────
+  {
+    id: 1,
+    cat: 'pizzas',
+    name: 'Mozzarella Clásica',
+    desc: 'Salsa de tomate artesanal, mozzarella entera y albahaca fresca',
+    price: 3200,
+    img: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: ['vegetariana'],
+    hot: true,
+    rating: 4.9
+  },
+  {
+    id: 2,
+    cat: 'pizzas',
+    name: 'Napolitana Fuego',
+    desc: 'Tomate fresco, mozzarella, ajo y orégano. Un clásico irresistible',
+    price: 3600,
+    img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: ['spicy', 'popular'],
+    hot: true,
+    rating: 4.8
+  },
+  {
+    id: 3,
+    cat: 'pizzas',
+    name: 'Especial de la Casa',
+    desc: 'Jamón, morrones, aceitunas, huevo y triple mozzarella',
+    price: 4200,
+    img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: ['popular'],
+    hot: false,
+    rating: 4.7
+  },
+  {
+    id: 4,
+    cat: 'pizzas',
+    name: 'Fugazzeta Rellena',
+    desc: 'Cebolla caramelizada, doble mozzarella y masa crocante',
+    price: 4000,
+    img: 'https://images.unsplash.com/photo-1548369937-47519962c11a?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: ['vegetariana', 'pop'],
+    hot: true,
+    rating: 5.0
+  },
+  {
+    id: 5,
+    cat: 'pizzas',
+    name: 'Pizza Americana',
+    desc: 'Salsa de tomate, mozzarella, panceta, maíz y morrones rojos',
+    price: 3900,
+    img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: [],
+    hot: false,
+    rating: 4.6
   },
 
-  client: {
-    name: "Pizzas & Empanadas - EL TURCO",
-    subtitle: "Pizzas y empanadas caseras",
-    logo: "🍕",
-    topbarSubtitle: "Pedidos por WhatsApp",
-    coverImage:
-      "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1400&q=80",
-    status: "Abierto ahora",
-    eta: "25 a 35 min",
-    zone: "Envíos en la zona",
-    tags: ["🔥 Promos", "🛵 Envíos", "💳 Transferencia"]
+  // ── EMPANADAS ──────────────────────────────────────────────────
+  {
+    id: 6,
+    cat: 'empanadas',
+    name: 'Carne Criolla',
+    desc: 'Carne picada con cebolla, aceitunas y huevo. Receta de la abuela',
+    price: 450,
+    img: 'https://images.unsplash.com/photo-1604467794349-0b74285de7e7?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: ['popular'],
+    hot: true,
+    rating: 4.9
+  },
+  {
+    id: 7,
+    cat: 'empanadas',
+    name: 'Jamón y Queso',
+    desc: 'Jamón cocido y queso cremoso fundido por dentro',
+    price: 420,
+    img: 'https://images.unsplash.com/photo-1559058789-672da06263d8?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: [],
+    hot: false,
+    rating: 4.7
+  },
+  {
+    id: 8,
+    cat: 'empanadas',
+    name: 'Pollo Suave',
+    desc: 'Pollo desmenuzado con morrón, cebolla y especias',
+    price: 440,
+    img: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: [],
+    hot: false,
+    rating: 4.6
+  },
+  {
+    id: 9,
+    cat: 'empanadas',
+    name: 'Humita',
+    desc: 'Choclo, queso y especias en masa crocante. Sabor que enamora',
+    price: 430,
+    img: 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: ['vegetariana'],
+    hot: false,
+    rating: 4.5
+  },
+  {
+    id: 10,
+    cat: 'empanadas',
+    name: 'Caprese',
+    desc: 'Tomate, mozzarella y albahaca. La empanada italiana',
+    price: 460,
+    img: 'https://images.unsplash.com/photo-1506354666786-959d6d497f1a?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: ['vegetariana', 'spicy'],
+    hot: true,
+    rating: 4.8
   },
 
-  whatsappPhone: "5493813159106",
-
-  payment: {
-    alias: "elopez2025",
-    ownerLabel: "Alias para transferencia"
+  // ── COMBOS ─────────────────────────────────────────────────────
+  {
+    id: 11,
+    cat: 'combos',
+    name: 'Combo Familiar',
+    desc: 'Pizza grande + 12 empanadas + 2 gaseosas 1.5L',
+    price: 8500,
+    img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: ['popular'],
+    hot: true,
+    rating: 5.0
+  },
+  {
+    id: 12,
+    cat: 'combos',
+    name: 'Combo Pareja',
+    desc: 'Pizza mediana + 6 empanadas surtidas + 1 gaseosa',
+    price: 5200,
+    img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: [],
+    hot: false,
+    rating: 4.8
   },
 
-  hero: {
-    title: "Pedí fácil y sin vueltas",
-    text: "Elegí tu pizza o tus empanadas, revisá tu pedido y mandalo directo por WhatsApp.",
-    badge: "⚡ Rápido y claro"
+  // ── BEBIDAS ────────────────────────────────────────────────────
+  {
+    id: 13,
+    cat: 'bebidas',
+    name: 'Coca-Cola 1.5L',
+    desc: 'Bebida fría, perfecta para acompañar tu pedido',
+    price: 900,
+    img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: [],
+    hot: false,
+    rating: 4.5
   },
-
-  featuredProductsIds: [
-    "pizza-muzzarella",
-    "pizza-napolitana",
-    "emp-docena"
-  ],
-
-  categories: [
-    {
-      id: "pizzas",
-      name: "Pizzas",
-      image:
-        "https://resizer.glanacion.com/resizer/v2/-OOYKN3HEDJFQXF3SOECAICFQWQ.jpg?auth=0f40a359db815154c30b0a689942817b35c4526464fff89970d39e1a625914d9&width=420&height=280&quality=70&smart=true",
-      badge: "PROMOS"
-    },
-    {
-      id: "empanadas",
-      name: "Empanadas",
-      image:
-        "https://images.unsplash.com/photo-1608039755401-742074f0548d?auto=format&fit=crop&w=1200&q=80",
-      badge: "DOCENA"
-    }
-  ],
-
-  products: [
-    {
-      id: "pizza-muzzarella",
-      categoryId: "pizzas",
-      type: "standard",
-      name: "Pizza Muzzarella",
-      image:
-        "https://resizer.glanacion.com/resizer/v2/-OOYKN3HEDJFQXF3SOECAICFQWQ.jpg?auth=0f40a359db815154c30b0a689942817b35c4526464fff89970d39e1a625914d9&width=420&height=280&quality=70&smart=true",
-      description: "La clásica pizza de muzzarella, salsa y aceitunas.",
-      badge: "TOP",
-      tag: "🔥 Más vendida",
-      options: [
-        { id: "muzza-4", label: "4 porciones (individual)", price: 7800 },
-        { id: "muzza-8", label: "8 porciones (grande)", price: 9800 }
-      ]
-    },
-    {
-      id: "pizza-napolitana",
-      categoryId: "pizzas",
-      type: "standard",
-      name: "Pizza Napolitana",
-      image:
-        "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=1200&q=80",
-      description: "Muzzarella, tomate fresco, ajo y aceitunas.",
-      badge: "PROMO",
-      tag: "🍅 Imperdible",
-      options: [
-        { id: "napo-4", label: "4 porciones (individual)", price: 8300 },
-        { id: "napo-8", label: "8 porciones (grande)", price: 10800 }
-      ]
-    },
-    {
-      id: "pizza-fugazzeta",
-      categoryId: "pizzas",
-      type: "standard",
-      name: "Pizza Fugazzeta",
-      image:
-        "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=1200&q=80",
-      description: "Cebolla, muzzarella y aceitunas.",
-      badge: "",
-      tag: "🧀 Clásica",
-      options: [
-        { id: "fuga-4", label: "4 porciones (individual)", price: 8600 },
-        { id: "fuga-8", label: "8 porciones (grande)", price: 10900 }
-      ]
-    },
-    {
-      id: "pizza-especial",
-      categoryId: "pizzas",
-      type: "standard",
-      name: "Pizza Especial",
-      image:
-        "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=1200&q=80",
-      description: "Jamón, muzzarella, morrones y aceitunas.",
-      badge: "COMPLETA",
-      tag: "💥 Bien cargada",
-      options: [
-        { id: "esp-4", label: "4 porciones (individual)", price: 9100 },
-        { id: "esp-8", label: "8 porciones (grande)", price: 11800 }
-      ]
-    },
-
-    {
-      id: "emp-docena",
-      categoryId: "empanadas",
-      type: "empanadas",
-      name: "Empanadas",
-      image:
-        "https://images.unsplash.com/photo-1608039755401-742074f0548d?auto=format&fit=crop&w=1200&q=80",
-      description: "Elegí libre o armá tu docena con los gustos que prefieras.",
-      badge: "ARMABLE",
-      tag: "🥟 Libre o docena",
-      empanadaFlavors: [
-        { id: "carne", name: "Carne" },
-        { id: "pollo", name: "Pollo" },
-        { id: "mondongo", name: "Mondongo" },
-        { id: "ternera_y_queso", name: "Ternera y queso" },
-        { id: "cuatro_quesos", name: "4 quesos" },
-        { id: "jamon_y_queso", name: "Jamón y queso" },
-        { id: "caprese", name: "Caprese" },
-        { id: "roquefort", name: "Roquefort" }
-      ],
-      options: [
-        { id: "emp-libre", label: "Libres por unidad", price: 900 },
-        { id: "emp-docena", label: "Docena", price: 9200 }
-      ]
-    }
-  ]
-};
+  {
+    id: 14,
+    cat: 'bebidas',
+    name: 'Sprite / 7UP 1.5L',
+    desc: 'Refresco claro, ideal con empanadas',
+    price: 900,
+    img: 'https://images.unsplash.com/photo-1625772452859-1c03d884dcd7?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: [],
+    hot: false,
+    rating: 4.4
+  },
+  {
+    id: 15,
+    cat: 'bebidas',
+    name: 'Agua Mineral',
+    desc: '500ml con o sin gas',
+    price: 400,
+    img: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=600&h=400&q=85&fit=crop&auto=format',
+    tags: [],
+    hot: false,
+    rating: 4.3
+  },
+];

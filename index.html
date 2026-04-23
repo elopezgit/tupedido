@@ -1,96 +1,158 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TuPedido!</title>
-  <meta
-    name="description"
-    content="TuPedido!. Sistema de pedidos por WhatsApp para negocios de comida."
-  />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-    rel="stylesheet"
-  />
-
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>🍕 La Buena Pizza</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- SPLASH -->
-  <div id="splash" class="splash-screen" aria-hidden="true">
-    <div class="splash-step splash-step-logo active" id="splashLogoStep">
-      <img src="img/logo/logo4.png" alt="TuPedido" class="splash-logo" />
-    </div>
 
-    <div class="splash-step splash-step-text" id="splashTextStep">
-      <h1 class="splash-question">¿Qué vas a pedir hoy?</h1>
-    </div>
-  </div>
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sp-emoji">🍕</div>
+  <div class="sp-name">La <span>Buena</span> Pizza</div>
+  <div class="sp-tagline">Pedí. Esperá. Disfrutá.</div>
+  <div class="sp-loader"><div class="sp-loader-bar"></div></div>
+</div>
 
-  <div class="app-shell">
-    <header id="topbar" class="topbar">
-      <button id="backButton" class="icon-button hidden" aria-label="Volver">
-        ←
-      </button>
+<!-- APP -->
+<div id="app">
 
-      <div class="topbar-brand">
-        <div id="topbarLogo" class="topbar-logo"></div>
-
-        <div class="topbar-brand-text">
-          <span id="topbarStoreName" class="store-name">TuPedido</span>
-          <span id="topbarStoreSubtitle" class="store-subtitle">Pedidos por WhatsApp</span>
-        </div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="brand-block">
+        <div class="brand-greeting">🔥 Abierto · Envío a domicilio</div>
+        <div class="brand-name">La <span>Buena</span> Pizza</div>
       </div>
-
-      <div id="topbarRightSpacer" class="topbar-right-spacer"></div>
-    </header>
-
-    <main id="appView" class="main-content"></main>
+      <button class="cart-fab" onclick="openCart()" id="cartFab">
+        🛒
+        <div class="cart-count" id="cartCount">0</div>
+      </button>
+    </div>
+    <div class="search-bar">
+      <span>🔍</span>
+      <input type="text" placeholder="Buscá tu pizza, empanada..." id="searchInput" oninput="filterMenu()">
+    </div>
   </div>
 
-  <div id="cartBar" class="cart-bar hidden">
-    <button id="cartButton" class="cart-bar-button">
+  <!-- PROMOS -->
+  <div class="promo-wrap fade-section" id="fsPromo">
+    <div class="promo-scroll" id="promoScroll">
+      <div class="promo-card p1">
+        <div class="promo-badge">⚡ OFERTA DEL DÍA</div>
+        <div class="promo-title">2x1 en Pizzas<br>los Lunes</div>
+        <div class="promo-sub">Solo hoy hasta las 22hs</div>
+        <button class="promo-cta">Ver pizzas →</button>
+        <div class="promo-emoji">🍕</div>
+      </div>
+      <div class="promo-card p2">
+        <div class="promo-badge">🎉 COMBO ESPECIAL</div>
+        <div class="promo-title">12 Empanadas<br>+ Gaseosa</div>
+        <div class="promo-sub">Ahorrá $800 en el combo</div>
+        <button class="promo-cta">Ver combo →</button>
+        <div class="promo-emoji">🥟</div>
+      </div>
+      <div class="promo-card p3">
+        <div class="promo-badge">🚀 ENVÍO GRATIS</div>
+        <div class="promo-title">En pedidos<br>+$4.000</div>
+        <div class="promo-sub">Todo el barrio con envío gratis</div>
+        <button class="promo-cta">Pedí ahora →</button>
+        <div class="promo-emoji">🛵</div>
+      </div>
+    </div>
+    <div class="promo-dots" id="promoDots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="cats-wrap fade-section" id="fsCats">
+    <div class="cats-scroll" id="catScroll">
+      <div class="cat-pill active" onclick="filterCat('todos')" data-cat="todos"><span>🍽️</span>Todos</div>
+      <div class="cat-pill" onclick="filterCat('pizzas')" data-cat="pizzas"><span>🍕</span>Pizzas</div>
+      <div class="cat-pill" onclick="filterCat('empanadas')" data-cat="empanadas"><span>🥟</span>Empanadas</div>
+      <div class="cat-pill" onclick="filterCat('combos')" data-cat="combos"><span>🎁</span>Combos</div>
+      <div class="cat-pill" onclick="filterCat('bebidas')" data-cat="bebidas"><span>🥤</span>Bebidas</div>
+    </div>
+  </div>
+
+  <!-- FEATURED -->
+  <div class="featured-wrap fade-section" id="fsFeat" style="display:none">
+    <div class="section-label">⭐ Los más pedidos</div>
+    <div class="featured-scroll" id="featScroll"></div>
+  </div>
+
+  <!-- MENU -->
+  <div class="menu-wrap fade-section" id="fsMenu">
+    <div class="section-label" id="menuTitle">🍽️ Menú completo</div>
+    <div class="menu-list" id="menuList"></div>
+  </div>
+
+  <div style="height:20px"></div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <button class="order-btn" id="orderBtn" onclick="openCart()">
+    <div class="order-btn-left">
+      <div class="order-btn-count" id="btnCount">0</div>
       <span>Ver mi pedido</span>
-      <strong id="cartTotal">$0</strong>
+    </div>
+    <div class="order-btn-total" id="btnTotal">$0</div>
+  </button>
+</div>
+
+<!-- CART PANEL -->
+<div class="panel-overlay" id="panelOverlay" onclick="closeCart()"></div>
+<div class="panel" id="cartPanel">
+  <div class="panel-handle"></div>
+  <div class="panel-title">
+    Tu pedido 🛒
+    <button class="panel-close" onclick="closeCart()">✕</button>
+  </div>
+
+  <div class="delivery-toggle">
+    <button class="dtoggle-btn active" id="dBtn1" onclick="setDelivery('delivery')">🛵 Delivery</button>
+    <button class="dtoggle-btn" id="dBtn2" onclick="setDelivery('takeaway')">🏃 Retiro</button>
+  </div>
+
+  <div id="cartContent"></div>
+
+  <div id="cartForm" style="display:none">
+    <div class="form-section">
+      <label class="form-label">Tu nombre</label>
+      <input class="form-input" type="text" id="fNombre" placeholder="Juan García">
+    </div>
+    <div class="form-section">
+      <label class="form-label">Teléfono</label>
+      <input class="form-input" type="tel" id="fTel" placeholder="351 123-4567">
+    </div>
+    <div class="form-section" id="addressSection">
+      <label class="form-label">Dirección de entrega</label>
+      <input class="form-input" type="text" id="fDir" placeholder="Av. Siempre Viva 742, piso 3">
+    </div>
+    <div class="form-section">
+      <label class="form-label">Notas (opcional)</label>
+      <textarea class="notes-input" id="fNota" placeholder="Sin cebolla, extra queso, tocar timbre..."></textarea>
+    </div>
+    <button class="wa-btn" onclick="sendWhatsApp()">
+      <span class="wa-icon">📲</span>
+      Enviar pedido por WhatsApp
     </button>
   </div>
+</div>
 
-  <!-- MODAL RESUMEN FINAL -->
-  <div id="confirmModal" class="modal hidden">
-    <div class="modal-backdrop" data-close-modal></div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3>Antes de enviar</h3>
-        <button class="modal-close" id="closeModalButton" type="button">×</button>
-      </div>
+<!-- SCRIPTS: data primero, luego app -->
+<script src="data.js"></script>
+<script src="app.js"></script>
 
-      <p class="modal-text">
-        Revisá tu pedido. Cuando confirmes, se abrirá WhatsApp con todo listo para enviar.
-      </p>
-
-      <div class="modal-preview" id="modalPreview"></div>
-
-      <label class="check-row">
-        <input type="checkbox" id="confirmCheck" />
-        <span>Gracias por tu pedido. Confirmo que quiero enviarlo por WhatsApp.</span>
-      </label>
-
-      <div class="modal-actions">
-        <button class="secondary-button" id="cancelModalButton" type="button">
-          Cancelar
-        </button>
-        <button class="whatsapp-button" id="confirmSendButton" type="button" disabled>
-          Enviar por WhatsApp
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <script src="data.js"></script>
-  <script src="app.js"></script>
 </body>
 </html>
