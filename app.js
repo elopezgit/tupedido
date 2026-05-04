@@ -126,8 +126,8 @@ function filterCat(cat) {
     todos: '🍽️ Menú completo',
     pizzas: '🍕 Pizzas',
     empanadas: '🥟 Empanadas',
-    combos: '🎁 Combos',
-    bebidas: '🥤 Bebidas'
+    bebidas: '🥤 Bebidas',
+    postres: '🍰 Postres'
   };
 
   document.getElementById('menuTitle').textContent = labels[cat];
